@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "flawless-haven-442300-m7",
+  "private_key_id": "ebd5247b48cc4c25fc9a99ab9a6e3b647cae1f1f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCKbvfwLRV+pkCd\nYXwP+9kVyHCxF9zEyTrpwSuT241ppIphjlW9GXJlo7rZfj2uHG9PD2CoWXfP7Ul+\naCH+8iSj7TxqxmNp4scoDzry9TSeH7k148s5ONr2ZgwHaPu+8oEFC9Gy980Ves8N\nIu3o0V+ahtrqwy9DjrHTqeQbwPuUUHczv1PtSple7XObYUnV/iWRkG5lVgYADhQt\ncU2tVThc8TZhXUXdjSq9dDJIsk7mqVxAPy7cNWZISkSz25A90Q2RWOzU0Dje76TX\nMWOJ3T+lCHiN6gePpMJSA2VszF5Wj++sLjCOzTnAmBVxcOdv5f/3Jqk8OcJhHIFH\nFzqyfU/lAgMBAAECggEADlH/ZQGM7S6OlZk9h7vCT64N9kvlIxg7921rsB5wqQKD\n7CaYuPiWbGw9Cn20LLw1SYTqN1AWBFTkGubzyVdMMgb7DoKaSxxSBNNagkKaYFcg\nxjHb1n4KrJ2O1f9mt3CHpzl7Rlu7A+NR4uZ/nOt3y9jycYGidIcg3yf+eF6Ex+lK\nC3Nwevm2+AGW5PemsU2AFENh3BRvI5kfPGEnJ7vxuLV7bPSOP6KYl9UlJasL5Aza\nSuxbBsZ+cQJp7d9M5uQEBQ9igz2siHVm5l+84cXgYs5cgNRjufsfKyjI13u3pS4e\ncCfGmt7QEBqWNwTHcJ0CeRwt0+Gi59GwuzRZHZztSwKBgQDCd+0yJSgCu6HnEsRP\naenNq3gzJQW5r2n7epmjsO0CzB7A7rCyQm/Fp8iAOL0ZXrkHaxg6vc/f7NErorGA\nM48aD0hmR4AJgcQ1L/9okg623TRkxyHAiFYYSBYHhCdNBwkSXeBqWjhoQgbUmPrk\nCAVdCef+I5AV3W5757fYmSUVSwKBgQC2PCu0Ehnxe3SF9grk5nSLL+GC4pR8a9Gp\nSPcPlf7qJsNPw9KwQl0blfRPfpvdVjemFWplfaqjUd5MqBEq+aoxi9362c9L9ns6\n8oXk7yGCA7U3BOJZZ3PHDCNTvbCF8GWrDf0p7Sjhnxe+3loXNyYh0VVwxbjrH6XE\nsS23LP9hjwKBgQC9090pFtYQnOG0s0AHmQaOKjQiEKCfGhjlT07MV7d0BJZ8lELN\nL0b19QsmBryoGCubjzHOnVxeZEfmRWDpGOs2b/anSGI2ZYKGvLyfcfuFCzbKrQtI\nao1IFI3Udm76pMR5NkQK7NilBNawDkjR8PZzVGkuTb6naUghERcICq4FMwKBgFTl\nVSrPX/yqmc8qn0qhvdt10+YIrkoEZKkrj8VYCGiG5GhNfuKUGBIY2rcJ8Yy8dLJP\nucBMOelZ42jsxwqxQsNQOHp7a+IkkqYUg6HycTbDiXF3OgeSdVJeajrB3PGY25RD\nsRQOIwRw/Dv0FB5Kl94bSmV+BzaqCKzIKdbzBIorAoGASCGargYiiDeQJd/6Z6v9\n1aYJDW6Y+nUUWVH5eF++ysg0cYb4CfbSQNGqpq0AIPcGesahWFEsfVct5PFGR4+/\ny3HbsvGbEUrh5NRDosmK/YuQH86egy4nRbUk9XrrnnUboaJXiuBm4z/G4uP7vcr7\nRdlyR0KI66z/zFN8v2KB2CI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "seanfyp@flawless-haven-442300-m7.iam.gserviceaccount.com",
+  "client_id": "111748278277022943887",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/seanfyp%40flawless-haven-442300-m7.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
