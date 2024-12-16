@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const API_URL = "https://findwork.dev/api/jobs/";
 
 export default async function handler(req, res) {
@@ -7,6 +5,7 @@ export default async function handler(req, res) {
 
   const API_KEY = process.env.FINDWORK_API_KEY;
 
+  // Check if API key is available
   if (!API_KEY) {
     return res
       .status(500)
@@ -14,20 +13,32 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await axios.get(API_URL, {
+    // Construct query parameters
+    const url = new URL(API_URL);
+    url.searchParams.append("search", query);
+    url.searchParams.append("location", location);
+    
+
+    // Make API request using fetch
+    const response = await fetch(url, {
+      method: "GET",
       headers: {
         Authorization: `Token ${API_KEY}`,
-      },
-      params: {
-        search: query,
-        location: location,
-        remote: false, // Add if remote filter is needed
-        limit: 5, // Limit results to 5 most relevant jobs
+        "Content-Type": "application/json",
       },
     });
 
-    if (response.data && response.data.results) {
-      res.status(200).json(response.data.results); // Return only the results array
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`Failed to fetch jobs: ${response.statusText}`);
+    }
+
+    // Parse the response body as JSON
+    const data = await response.json();
+
+    // Return only the results array if it exists
+    if (data && data.results) {
+      res.status(200).json(data.results);
     } else {
       res.status(404).json({ message: "No jobs found for the given criteria." });
     }
