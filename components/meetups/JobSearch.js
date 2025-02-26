@@ -149,7 +149,7 @@ function JobSearch() {
 
         {/* External Link to Job */}
         <a
-          href={job.url} // Job URL provided in the job object
+          href={job.url} // Job URL from result json
           target="_blank" // Open link in a new tab
           rel="noopener noreferrer" // Security measure: prevents tab access and referrer leaks
         >
