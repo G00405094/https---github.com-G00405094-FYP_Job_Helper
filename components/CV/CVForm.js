@@ -290,13 +290,23 @@ function CVForm() {
         <button type="submit" className={classes.submitButton}>
           Generate CV
         </button>
-        {generatedCV && ( //not null
-          <div className={classes.generatedCvContainer}>
-            <h2 className={classes.cvTitle}>Your Generated CV</h2>
-            <pre className={classes.cvOutput}>{generatedCV}</pre> 
-          </div>
-        )}
       </form>
+      
+      {generatedCV && (
+        <div className={classes.generatedCvContainer}>
+          <div className={classes.cvHeader}>
+            <h2 className={classes.cvTitle}>Your Generated CV</h2>
+            <button 
+              type="button" 
+              onClick={handleDownload} 
+              className={classes.downloadButton}
+            >
+              Download CV
+            </button>
+          </div>
+          <pre className={classes.cvOutput}>{generatedCV}</pre>
+        </div>
+      )}
     </div>
   );
 }
