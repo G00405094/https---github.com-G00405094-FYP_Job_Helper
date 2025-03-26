@@ -1,3 +1,6 @@
+import dbConnect from '../../lib/mongodb';
+import CV from '../../models/CV';
+
 export default async function handler(req, res) {
     // Destructure formData from the request body
     const { formData } = req.body;
@@ -80,11 +83,23 @@ export default async function handler(req, res) {
         const data = await response.json();
         const botResponse = data.choices[0].message.content; // Accesses the AI's message content, got this from documentation
 
+        // Connect to MongoDB
+        await dbConnect();
+        
+        // Save CV data to MongoDB
+        const savedCV = await CV.create({
+            ...formData,
+            generatedCV: botResponse
+        });
+
         // Send CV back to the frontend as JSON
-        res.status(200).json({ response: botResponse });
+        res.status(200).json({ 
+            response: botResponse,
+            savedCV: savedCV._id // Return the ID of the saved CV
+        });
     } catch (error) {
         // Handle any errors that occur during the request or response
-        console.error('Error fetching from OpenAI:', error.message);
-        res.status(500).json({ error: 'Failed to fetch data from OpenAI', details: error.message });
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Failed to process request', details: error.message });
     }
 }

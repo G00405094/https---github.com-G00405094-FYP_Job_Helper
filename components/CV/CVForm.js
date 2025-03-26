@@ -89,6 +89,12 @@ function CVForm() {
       if (response.ok) {
         console.log("Generated CV:", result.response); // Log the response
         setGeneratedCV(result.response); // Set generated CV to state
+        
+        // Save the CV ID if it was returned
+        if (result.savedCV) {
+          setSavedCVId(result.savedCV);
+          console.log("CV saved with ID:", result.savedCV);
+        }
       } else {
         console.error("Error:", result.error); // Log error
         alert(result.error); // Alert the user with error message
@@ -99,6 +105,25 @@ function CVForm() {
   };
 
   const [generatedCV, setGeneratedCV] = useState(""); // State to hold the generated CV
+  const [savedCVId, setSavedCVId] = useState(null);
+
+  // Add a function to handle CV download
+  const handleDownload = () => {
+    // Create a blob from the CV text
+    const blob = new Blob([generatedCV], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a link element and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${formData.name.replace(/\s+/g, '_')}_CV.txt`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className={classes.cvFormContainer}>

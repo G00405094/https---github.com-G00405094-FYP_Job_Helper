@@ -159,3 +159,162 @@
     padding: 20px;
   }
 }
+
+/* CV Selection at the top - updated styles */
+.cvSelection {
+  margin: 0 0 25px 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.cvSelection h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.cvSelect {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.3s;
+}
+
+.cvSelect:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Disabled button state - improved visibility */
+.coverLetterButton:disabled {
+  background-color: #d1b3e0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Add a view job button style */
+.viewJobButton {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 0;
+  transition: background-color 0.3s;
+}
+
+.viewJobButton:hover {
+  background-color: #2980b9;
+}
+
+/* Completely reset and redefine the job action buttons */
+.jobActions {
+  display: flex;
+  margin-top: 15px;
+  gap: 10px; /* Consistent gap between buttons */
+  align-items: center;
+}
+
+/* Remove all existing button styles */
+.viewJobButton, .coverLetterButton {
+  /* Base button styling */
+  padding: 10px 0; /* Top/bottom padding only */
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  border: none;
+  transition: background-color 0.2s ease;
+  
+  /* Fixed and exactly equal width */
+  width: 50%; /* Each button takes exactly half the space */
+  display: inline-block;
+}
+
+/* Individual colors */
+.viewJobButton {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.coverLetterButton {
+  background-color: #9b59b6;
+  color: white;
+}
+
+/* Simple hover states without movement */
+.viewJobButton:hover {
+  background-color: #27ae60;
+}
+
+.coverLetterButton:hover {
+  background-color: #8e44ad;
+}
+
+/* Disabled state */
+.coverLetterButton:disabled {
+  background-color: #d1b3e0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Cover Letter Container */
+.coverLetterContainer {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.coverLetterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.coverLetterHeader h3 {
+  margin: 0;
+  color: #333;
+}
+
+.downloadButton {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.downloadButton:hover {
+  background-color: #27ae60;
+}
+
+.coverLetterContent {
+  white-space: pre-wrap;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #333;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}

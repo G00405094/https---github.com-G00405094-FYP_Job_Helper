@@ -14,6 +14,9 @@ function MainNavigation() {
           <li>
             <Link href='/job-search'>Job Search</Link>
           </li>
+          <li>
+            <Link href="/cv-history">CV History</Link>
+          </li>
         </ul>
       </nav>
     </header>
