@@ -1,3 +1,10 @@
+/**
+ * Main Navigation Component Styles
+ * 
+ * This CSS module provides styles for the main navigation header.
+ * It uses flexbox for layout and includes styling for links and hover states.
+ */
+
 .header {
   width: 100%;
   height: 70px;
@@ -62,5 +69,35 @@
   
   .header li {
     margin: 0 0.5rem;
+  }
+}
+
+/* New styles for authentication */
+.userName {
+  font-size: 1rem;
+  color: white;
+  margin-right: 0.5rem;
+}
+
+.logoutButton {
+  background: none;
+  border: 1px solid white;
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .userName {
+    font-size: 0.9rem;
+    margin-right: 0;
+    margin-bottom: 0.3rem;
   }
 }

@@ -10,15 +10,20 @@
     "clean": "rmdir /s /q .next && rmdir /s /q node_modules && npm install"
   },
   "dependencies": {
+    "@expo/ngrok": "^4.1.0",
     "@google-cloud/talent": "^6.3.1",
     "axios": "^1.7.9",
+    "bcryptjs": "^3.0.2",
     "docx": "^9.2.0",
     "file-saver": "^2.0.5",
+    "iron-session": "^8.0.4",
     "mongoose": "^8.9.0",
     "next": "12.3.1",
+    "next-iron-session": "^4.2.0",
     "openai": "^4.71.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "sparse-bitfield": "^3.0.3"
   },
   "devDependencies": {
     "eslint": "8.25.0",

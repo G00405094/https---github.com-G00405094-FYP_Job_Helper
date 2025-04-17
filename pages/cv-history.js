@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from '../styles/CVHistory.module.css';
+import withAuth from '../lib/withAuth';
+import { useAuth } from '../lib/AuthContext';
 
-export default function CVHistory() {
+function CVHistory() {
   const [cvs, setCvs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     async function fetchCVs() {
+      if (!isAuthenticated) {
+        return; // Don't fetch if not authenticated
+      }
+      
       try {
+        setLoading(true);
         const response = await fetch('/api/cvs');
         const result = await response.json();
 
@@ -27,7 +35,7 @@ export default function CVHistory() {
     }
 
     fetchCVs();
-  }, []);
+  }, [isAuthenticated]);
 
   if (loading) return <div className={styles.loading}>Loading CV history...</div>;
   if (error) return <div className={styles.error}>Error: {error}</div>;
@@ -54,9 +62,12 @@ export default function CVHistory() {
         </div>
       )}
       
-      <Link href="/cv">
+      <Link href="/">
         <a className={styles.createButton}>Create New CV</a>
       </Link>
     </div>
   );
-} 
+}
+
+// Export the component with authentication protection
+export default withAuth(CVHistory); 
