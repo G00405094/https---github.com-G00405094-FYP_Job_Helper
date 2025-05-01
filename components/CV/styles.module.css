@@ -502,3 +502,782 @@
   color: #777;
   font-size: 13px;
 }
+
+/* New Styles for Enhanced CV Builder */
+
+/* Interactive CV Form Layout */
+.cvFormLayout {
+  display: flex;
+  gap: 30px;
+  margin: 20px auto;
+  position: relative;
+}
+
+.formColumn {
+  flex: 1;
+  min-width: 0;
+}
+
+.previewColumn {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+  height: max-content;
+  min-width: 0;
+}
+
+/* Template Selector Styles */
+.templateSelector {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.templateSelectorTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.templateCard {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.templateCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.templateCardSelected {
+  border: 2px solid #3498db;
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.15);
+}
+
+.templateThumbnail {
+  height: 140px;
+  margin-bottom: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.thumbnailPreview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.thumbnailHeader {
+  height: 25%;
+  background-color: #e0e0e0;
+}
+
+.thumbnailContent {
+  flex: 1;
+  padding: 8px;
+  background-color: #f5f5f5;
+}
+
+.thumbnailLine {
+  height: 6px;
+  background-color: #e0e0e0;
+  margin-bottom: 6px;
+  border-radius: 3px;
+}
+
+.thumbnailProfessional {
+  background-color: #f8f9fa;
+}
+
+.thumbnailCreative {
+  background-color: #fff0f5;
+}
+
+.thumbnailTechnical {
+  background-color: #f0f8ff;
+}
+
+.thumbnailMinimalist {
+  background-color: #ffffff;
+}
+
+.templateInfo {
+  padding-top: 10px;
+}
+
+.templateName {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.templateDescription {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.templateTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.templateTag {
+  background-color: #f1f1f1;
+  color: #555;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 50px;
+}
+
+/* CV Preview Styles */
+.previewContainer {
+  padding: 30px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.previewName {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.previewContact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.previewObjective {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.previewExperience {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.previewExperience:last-child {
+  border-bottom: none;
+}
+
+.previewJobHeader {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.previewJobDates {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.previewResponsibilities {
+  white-space: pre-line;
+}
+
+.previewEducation {
+  margin-bottom: 15px;
+}
+
+.previewEduHeader {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.previewEduDate {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Template-specific styles */
+.previewProfessional {
+  font-family: 'Arial', sans-serif;
+}
+
+.headerProfessional {
+  border-bottom: 2px solid #2c3e50;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+}
+
+.sectionProfessional {
+  margin-bottom: 20px;
+}
+
+.titleProfessional {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.previewCreative {
+  font-family: 'Georgia', serif;
+}
+
+.headerCreative {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 3px double #e74c3c;
+}
+
+.sectionCreative {
+  margin-bottom: 20px;
+}
+
+.titleCreative {
+  color: #e74c3c;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.previewTechnical {
+  font-family: 'Courier New', monospace;
+}
+
+.headerTechnical {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #34495e;
+  color: white;
+  border-radius: 4px;
+}
+
+.sectionTechnical {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-left: 4px solid #3498db;
+}
+
+.titleTechnical {
+  color: #3498db;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.previewMinimalist {
+  font-family: 'Helvetica', sans-serif;
+  line-height: 1.7;
+}
+
+.headerMinimalist {
+  margin-bottom: 20px;
+}
+
+.sectionMinimalist {
+  margin-bottom: 25px;
+}
+
+.titleMinimalist {
+  color: #555;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Wizard Form Styles */
+.wizardContainer {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.progressContainer {
+  margin-bottom: 30px;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #3498db;
+  transition: width 0.3s ease;
+}
+
+.stepIndicators {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stepIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  cursor: pointer;
+}
+
+.stepDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.activeStep .stepDot {
+  background-color: #3498db;
+  transform: scale(1.2);
+}
+
+.completedStep .stepDot {
+  background-color: #2ecc71;
+}
+
+.stepLabel {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  max-width: 100px;
+}
+
+.activeStep .stepLabel {
+  color: #3498db;
+  font-weight: 600;
+}
+
+.stepHeader {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stepTitle {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.stepDescription {
+  color: #666;
+  font-size: 14px;
+}
+
+.wizardForm {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.formSection {
+  margin-bottom: 30px;
+}
+
+.fieldGroup {
+  margin-bottom: 20px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.fieldHelp {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.inputField, .textareaField, .selectField {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.inputField:focus, .textareaField:focus, .selectField:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.dateFields {
+  display: flex;
+  gap: 15px;
+}
+
+.dateFields .fieldGroup {
+  flex: 1;
+}
+
+.experienceEntry, .educationEntry {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.entryTitle {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.addButton {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px dashed #bbb;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #e9e9e9;
+}
+
+.navigationButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.backButton, .nextButton {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.backButton:hover {
+  background-color: #e9e9e9;
+}
+
+.nextButton {
+  background-color: #3498db;
+  color: white;
+  border: none;
+}
+
+.nextButton:hover {
+  background-color: #2980b9;
+}
+
+.submitContainer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.submitButton {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #27ae60;
+}
+
+.submitButton:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  background-color: #ffecec;
+  color: #e74c3c;
+  padding: 10px 15px;
+  border-left: 4px solid #e74c3c;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.reviewMessage {
+  background-color: #f1f8ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.reviewSummary {
+  margin-bottom: 30px;
+}
+
+.reviewItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.editButton {
+  background-color: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+/* Smart Suggestions Styles */
+.suggestionsContainer {
+  margin-top: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.suggestionsHeader {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.suggestionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestionChip {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestionChip:hover {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+/* Generated CV Display */
+.generatedCvBox {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 30px;
+  max-height: 600px;
+  overflow: auto;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.generatedCvText {
+  white-space: pre-wrap;
+  font-family: 'Calibri', 'Arial', sans-serif;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* CV Template Styling */
+.generatedCvContent {
+  font-family: 'Calibri', 'Arial', sans-serif;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Professional Template Styling */
+.templateProfessional {
+  font-family: 'Times New Roman', serif;
+  color: #000;
+}
+
+.templateProfessional h1 {
+  color: #14213d;
+  border-bottom: 2px solid #14213d;
+  padding-bottom: 5px;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.templateProfessional h2 {
+  color: #14213d;
+  border-bottom: 1px solid #14213d;
+  padding-bottom: 3px;
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.templateProfessional .section {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+/* Creative Template Styling */
+.templateCreative {
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
+}
+
+.templateCreative h1 {
+  color: #bc6c25;
+  font-size: 26px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.templateCreative h2 {
+  color: #bc6c25;
+  border-bottom: 2px solid #dda15e;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 18px;
+  padding-bottom: 3px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.templateCreative .header {
+  background-color: #fefae0;
+  padding: 15px;
+  margin: -30px -30px 20px -30px;
+}
+
+.templateCreative .contact-info {
+  color: #606c38;
+}
+
+.templateCreative .section {
+  padding-left: 5px;
+  margin-bottom: 15px;
+}
+
+/* Technical Template Styling */
+.templateTechnical {
+  font-family: 'Consolas', 'Courier New', monospace;
+  background-color: #f8f9fa;
+}
+
+.templateTechnical h1 {
+  color: #2a9d8f;
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.templateTechnical h2 {
+  color: #2a9d8f;
+  border-bottom: 1px solid #2a9d8f;
+  text-transform: uppercase;
+  font-size: 16px;
+  padding-bottom: 3px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.templateTechnical .section {
+  padding-left: 15px;
+  border-left: 3px solid #e9c46a;
+  margin-left: 5px;
+  margin-bottom: 15px;
+}
+
+.templateTechnical .contact-info {
+  font-family: 'Calibri', sans-serif;
+  color: #264653;
+}
+
+/* Minimalist Template Styling */
+.templateMinimalist {
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  color: #333;
+  font-weight: 300;
+}
+
+.templateMinimalist h1 {
+  font-weight: 300;
+  font-size: 26px;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 15px;
+}
+
+.templateMinimalist h2 {
+  font-weight: 300;
+  color: #555;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 16px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.templateMinimalist .section {
+  margin-bottom: 25px;
+}
+
+.templateMinimalist .contact-info {
+  color: #777;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

@@ -83,11 +83,18 @@ ${cvSections.fullCV}
     // Grade the professional summary/objective
     const summaryPrompt = `
 You are an expert CV reviewer who specializes in professional summaries and objectives.
-Please analyze the following CV summary/objective section and evaluate its effectiveness.
+Please analyze the following CV to identify and evaluate any professional summary or objective section.
 
 ${jobTitleContext}
 
-Evaluate on a scale of 0-${sectionWeights.summary} based on these criteria:
+First, determine if there is a clear professional summary or objective section. Look for:
+- Text at the beginning of the CV that summarizes career goals or professional identity
+- Sections labeled as "Summary", "Objective", "Profile", "About Me", "Professional Summary", etc.
+- A short paragraph (3-5 lines) near the contact information that describes career focus
+
+If no explicit summary is found, indicate this with a score of 0 and provide feedback on why a summary is important.
+
+Evaluate any found summary on a scale of 0-${sectionWeights.summary} based on these criteria:
 - Clear articulation of career goals or professional identity
 - Highlights relevant skills and experience${targetJobTitle ? ` for ${targetJobTitle} roles` : ''}
 - Tailored to target roles (not generic)
@@ -106,8 +113,8 @@ Return your analysis in JSON format as follows:
   ]
 }
 
-CV summary section to analyze:
-${cvSections.summary || (cvSections.personal + '\n' + cvSections.other).substring(0, 500)}
+CV content to analyze (focus on identifying any summary section):
+${cvSections.summary || cvSections.personal || cvSections.fullCV.substring(0, 1000)}
 `;
 
     // Grade the work experience descriptions
@@ -232,6 +239,41 @@ CV sections to analyze:
 ${(cvSections.certifications || '') + '\n' + (cvSections.achievements || '') + '\n' + (cvSections.projects || '') + '\n' + (cvSections.interests || '')}
 `;
 
+    // Add a comprehensive overall CV evaluation that looks at the entire CV holistically
+    const overallEvaluationPrompt = `
+You are an expert CV reviewer conducting a comprehensive evaluation of a complete CV.
+Please analyze the following CV holistically, focusing on how well the different sections work together.
+
+${jobTitleContext}
+
+Evaluate the entire CV as a cohesive document on a scale of 0-10 based on these criteria:
+- Overall impact and effectiveness for ${targetJobTitle ? `${targetJobTitle} positions` : 'the job market'}
+- Coherence and flow between sections
+- Consistency in formatting, language, and tone
+- Proper emphasis and focus on most relevant qualifications
+- Balance between different sections (not too heavy in one area)
+- Strategic presentation of strengths and qualifications
+- How effectively it addresses potential employer needs
+- Overall readability and scan-ability
+
+Return your analysis in JSON format as follows:
+{
+  "score": number (0-10),
+  "feedback": "detailed holistic feedback that considers the entire CV",
+  "keyStrengths": [
+    "key strength 1",
+    "key strength 2"
+  ],
+  "criticalWeaknesses": [
+    "critical weakness 1",
+    "critical weakness 2"
+  ]
+}
+
+CV to analyze:
+${cvSections.fullCV}
+`;
+
     // Structure for all section evaluations
     const sectionPrompts = [
       { name: 'Format & Presentation', prompt: formatPrompt, maxScore: sectionWeights.format },
@@ -239,7 +281,8 @@ ${(cvSections.certifications || '') + '\n' + (cvSections.achievements || '') + '
       { name: 'Work Experience', prompt: experiencePrompt, maxScore: sectionWeights.experience },
       { name: 'Education', prompt: educationPrompt, maxScore: sectionWeights.education },
       { name: 'Skills & Competencies', prompt: skillsPrompt, maxScore: sectionWeights.skills },
-      { name: 'Certifications & Achievements', prompt: extrasPrompt, maxScore: sectionWeights.certifications + sectionWeights.achievements }
+      { name: 'Certifications & Achievements', prompt: extrasPrompt, maxScore: sectionWeights.certifications + sectionWeights.achievements },
+      { name: 'Overall Effectiveness', prompt: overallEvaluationPrompt, maxScore: 10 }
     ];
 
     // Process each section in parallel
@@ -252,12 +295,12 @@ ${(cvSections.certifications || '') + '\n' + (cvSections.achievements || '') + '
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
           },
           body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4', // Upgraded to GPT-4 for better analysis
             messages: [
-              { role: 'system', content: 'You are a professional CV grading assistant.' },
+              { role: 'system', content: 'You are a professional CV grading assistant with expertise in professional resume evaluation. Your task is to thoroughly analyze CV content and provide objective, logical feedback with numeric scoring. Do not inflate scores - be rigorous and realistic in your assessment.' },
               { role: 'user', content: section.prompt }
             ],
-            temperature: 0.7,
+            temperature: 0.3, // Lower temperature for more consistent, logical evaluations
             max_tokens: 1000
           })
         });
@@ -304,14 +347,14 @@ ${(cvSections.certifications || '') + '\n' + (cvSections.achievements || '') + '
         return jsonResponse.score;
       } catch (error) {
         console.error(`Error grading ${section.name}:`, error);
-        // In case of error, assign a default score for this section
+        // In case of error, assign a score of zero to this section
         results.sections.push({
           name: section.name,
-          score: Math.floor(section.maxScore / 2), // Default to half the max score
+          score: 0, // Default to zero instead of half score
           maxScore: section.maxScore,
-          feedback: "Unable to evaluate this section due to a technical error."
+          feedback: "Unable to evaluate this section properly. Please ensure your CV content is clear and properly structured."
         });
-        return Math.floor(section.maxScore / 2);
+        return 0; // Return zero for error cases
       }
     }));
 

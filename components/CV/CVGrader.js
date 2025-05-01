@@ -93,12 +93,12 @@ function CVGrader() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file type
-    const validFileTypes = ['.txt', '.pdf', '.doc', '.docx'];
+    // Check file type - only accept text files
+    const validFileTypes = ['.txt'];
     const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
     
     if (!validFileTypes.includes(fileExtension)) {
-      setError("Please upload a TXT, PDF, DOC, or DOCX file");
+      setError("Please upload a TXT file only. Word documents and PDFs cannot be accurately parsed.");
       return;
     }
 
@@ -191,78 +191,140 @@ function CVGrader() {
     // Common section headers in CVs
     const sectionHeaders = [
       { name: 'personal', patterns: ['personal information', 'personal details', 'contact', 'profile'] },
-      { name: 'summary', patterns: ['summary', 'objective', 'professional summary', 'career objective', 'about me'] },
-      { name: 'experience', patterns: ['experience', 'employment', 'work experience', 'work history', 'professional experience'] },
-      { name: 'education', patterns: ['education', 'academic', 'qualifications', 'academic background'] },
-      { name: 'skills', patterns: ['skills', 'technical skills', 'core competencies', 'key skills', 'competencies'] },
-      { name: 'certifications', patterns: ['certifications', 'certificates', 'accreditations', 'professional development'] },
-      { name: 'projects', patterns: ['projects', 'key projects', 'personal projects'] },
-      { name: 'achievements', patterns: ['achievements', 'awards', 'honors', 'accomplishments'] },
-      { name: 'interests', patterns: ['interests', 'hobbies', 'activities', 'personal interests'] }
+      { name: 'summary', patterns: ['summary', 'objective', 'professional summary', 'career objective', 'about me', 'professional profile'] },
+      { name: 'experience', patterns: ['experience', 'employment', 'work experience', 'work history', 'professional experience', 'employment history'] },
+      { name: 'education', patterns: ['education', 'academic', 'qualifications', 'academic background', 'educational background'] },
+      { name: 'skills', patterns: ['skills', 'technical skills', 'core competencies', 'key skills', 'competencies', 'expertise'] },
+      { name: 'certifications', patterns: ['certifications', 'certificates', 'accreditations', 'professional development', 'licenses'] },
+      { name: 'projects', patterns: ['projects', 'key projects', 'personal projects', 'professional projects'] },
+      { name: 'achievements', patterns: ['achievements', 'awards', 'honors', 'accomplishments', 'recognition'] },
+      { name: 'interests', patterns: ['interests', 'hobbies', 'activities', 'volunteer', 'extracurricular'] }
     ];
     
-    // Convert text to lowercase for case-insensitive matching
-    const lowerText = text.toLowerCase();
-    
-    // Split the CV into lines
-    const lines = text.split('\n');
-    
-    // Object to store sections
+    // Initialize sections object with full CV text
     const sections = {
-      fullCV: text,
-      personal: '',
-      summary: '',
-      experience: '',
-      education: '',
-      skills: '',
-      other: '' // For content that doesn't match any section
+      fullCV: text
     };
     
-    // Current section being processed
-    let currentSection = 'other';
+    // Separate CV into lines
+    const lines = text.split('\n');
     
-    // Process each line
+    // Find sections
+    let currentSection = 'personal'; // Default start section
+    let previousLineEmpty = true;
+    let lastFoundIndex = -1;
+    
+    // First pass - identify section headers
+    const identifiedSections = [];
+    
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue; // Skip empty lines
+      const line = lines[i].trim().toLowerCase();
       
-      // Try to identify section headers
-      let foundSection = false;
-      for (const section of sectionHeaders) {
-        if (section.patterns.some(pattern => {
-          // Check if line contains the pattern and is likely a header (short, has colon, etc.)
-          return (line.toLowerCase().includes(pattern) && 
-                 (line.length < 50 || line.includes(":") || 
-                  line.toUpperCase() === line || 
-                  /^[A-Z]/.test(line)));
-        })) {
-          currentSection = section.name;
-          foundSection = true;
+      // Skip empty lines
+      if (!line) {
+        previousLineEmpty = true;
+        continue;
+      }
+      
+      // Check if this could be a section header
+      // Criteria: Short line (under 35 chars), possibly preceded by empty line,
+      // possibly ending with colon, not containing multiple spaces in middle
+      const isPossibleHeader = (
+        line.length < 35 && 
+        (previousLineEmpty || line.endsWith(':')) &&
+        !line.includes('  ')
+      );
+      
+      if (isPossibleHeader) {
+        let foundSection = false;
+        
+        // Check against known section patterns
+        for (const section of sectionHeaders) {
+          // Clean the line for comparison (remove colons, etc.)
+          const cleanLine = line.replace(/[:]/g, '').trim();
           
-          // Initialize section if not already present
-          if (!sections[currentSection]) {
-            sections[currentSection] = '';
+          if (section.patterns.some(pattern => 
+            cleanLine === pattern || 
+            cleanLine.includes(pattern) || 
+            cleanLine.startsWith(pattern)
+          )) {
+            identifiedSections.push({
+              name: section.name,
+              index: i
+            });
+            foundSection = true;
+            lastFoundIndex = i;
+            break;
           }
-          
-          // Add the header to the section content
-          sections[currentSection] += line + '\n';
-          break;
         }
       }
       
-      if (!foundSection) {
-        // Add content to current section
-        if (!sections[currentSection]) {
-          sections[currentSection] = '';
-        }
-        sections[currentSection] += line + '\n';
+      previousLineEmpty = false;
+    }
+    
+    // Second pass - extract content for each identified section
+    for (let i = 0; i < identifiedSections.length; i++) {
+      const section = identifiedSections[i];
+      const nextSection = identifiedSections[i + 1];
+      
+      const startIndex = section.index + 1; // Start from the line after header
+      const endIndex = nextSection ? nextSection.index : lines.length;
+      
+      // Extract section content
+      sections[section.name] = lines.slice(startIndex, endIndex).join('\n').trim();
+    }
+    
+    // Handle cases where sections weren't properly identified
+    // Special case for summary - if we didn't find it, first 3-5 lines might be the summary
+    if (!sections.summary && lines.length > 5) {
+      const potentialSummary = lines.slice(0, Math.min(7, Math.ceil(lines.length * 0.1))).join('\n').trim();
+      if (potentialSummary.length > 50 && potentialSummary.length < 500) {
+        sections.summary = potentialSummary;
       }
     }
     
-    // Fall back to full CV if we couldn't parse sections effectively
+    // If no sections were identified, try more aggressive pattern matching
+    if (Object.keys(sections).length <= 1) { // Only fullCV exists
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim().toLowerCase();
+        
+        // Skip empty lines
+        if (!line) continue;
+        
+        // More aggressive pattern matching for section headers
+        for (const section of sectionHeaders) {
+          for (const pattern of section.patterns) {
+            if (line.includes(pattern)) {
+              // Find the end of this section (next non-empty line that could be a header)
+              let endIndex = lines.length;
+              for (let j = i + 1; j < lines.length; j++) {
+                const nextLine = lines[j].trim().toLowerCase();
+                if (nextLine && nextLine.length < 35) {
+                  for (const otherSection of sectionHeaders) {
+                    if (otherSection.name !== section.name) {
+                      if (otherSection.patterns.some(p => nextLine.includes(p))) {
+                        endIndex = j;
+                        break;
+                      }
+                    }
+                  }
+                  if (endIndex !== lines.length) break;
+                }
+              }
+              
+              sections[section.name] = lines.slice(i + 1, endIndex).join('\n').trim();
+              i = endIndex - 1; // Resume from end of this section
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    // If still no sections found, create a plain 'other' section
     let hasSections = false;
     for (const key of Object.keys(sections)) {
-      if (key !== 'fullCV' && key !== 'other' && sections[key].length > 0) {
+      if (key !== 'fullCV' && sections[key] && sections[key].length > 0) {
         hasSections = true;
         break;
       }
@@ -822,7 +884,7 @@ function CVGrader() {
                 <span>Upload CV</span>
                 <input
                   type="file"
-                  accept=".txt,.pdf,.doc,.docx"
+                  accept=".txt"
                   onChange={handleFileUpload}
                   className={classes.fileInput}
                 />

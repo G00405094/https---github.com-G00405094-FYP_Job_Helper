@@ -20,6 +20,11 @@ import classes from "./styles.module.css";
 // Import authentication context for checking user login status
 import { useAuth } from "../../lib/AuthContext";
 import { useRouter } from "next/router";
+// Import our new components
+import CVPreview from "./CVPreview";
+import TemplateSelector from "./TemplateSelector";
+import CVFormWizard from "./CVFormWizard";
+import SmartSuggestions from "./SmartSuggestions";
 
 /**
  * CVForm Component
@@ -85,6 +90,7 @@ function CVForm() {
   const [isLoading, setIsLoading] = useState(false); // Tracks API request loading state
   const [error, setError] = useState("");            // Stores error messages
   const [authError, setAuthError] = useState(false); // Tracks authentication errors
+  const [selectedTemplate, setSelectedTemplate] = useState("professional"); // Template selection
 
   /**
    * Basic Input Change Handler
@@ -198,7 +204,7 @@ function CVForm() {
       ...formData,  // Keep all existing form data
       education: [
         ...formData.education, // Keep all existing education entries
-        // Add a new empty education object
+        // Add a new empty education object to the end of the array
         { 
           degree: "", 
           institution: "", 
@@ -211,417 +217,493 @@ function CVForm() {
   /**
    * Form Submission Handler
    * 
-   * This function runs when the user clicks the "Generate CV" button.
-   * It shows several important concepts:
-   * - async/await: A cleaner way to work with Promises (asynchronous operations)
-   * - try/catch: How to handle errors in JavaScript
-   * - fetch API: How to send data to a server
+   * This function processes the form submission:
+   * 1. Prevents the default browser form submission
+   * 2. Checks user authentication
+   * 3. Sends the form data to the server via fetch()
+   * 4. Updates the state based on the server's response
    * 
    * @param {Event} e - The form submission event from the browser
    */
   const handleSubmit = async (e) => {
-    // prevent the default form submission (which would refresh the page)
-    // This is important because we want to handle the submission with JavaScript
+    // Prevent the default browser form submission behavior
+    // Without this, the page would reload (which we don't want in a React app)
     e.preventDefault();
     
-    // Clear any previous errors and reset state
+    // Clear any previous error messages
     setError("");
-    setAuthError(false);
-
-    // Check if user is authenticated before proceeding
+    
+    // Check if the user is authenticated (logged in)
+    // This is vital for security and data association
     if (!isAuthenticated) {
-      console.log("User not authenticated, redirecting to login");
       setAuthError(true);
-      // Redirect to login page after a short delay
-      setTimeout(() => {
-        router.push('/auth/login');
-      }, 2000);
+      setError("Please log in to generate a CV");
       return;
     }
     
-    // Set loading state to show the user something is happening
+    // Set loading state to true to display a loading indicator
     setIsLoading(true);
     
-    // Log the data to the console - helpful for debugging
-    console.log("Submitting form data...", formData);
-
-    // try/catch blocks let us attempt something that might fail (try)
-    // and handle any errors that occur (catch)
     try {
-      /**
-       * Sending Data to the Server
-       * 
-       * Here we use the fetch API to send our form data to the server.
-       * The 'await' keyword pauses execution until the fetch completes.
-       * This is much cleaner than using the older Promise.then() syntax.
-       * 
-       * The fetch function takes two parameters:
-       * 1. The URL to send the request to
-       * 2. An options object with method, headers, and body
-       */
+      // Send the form data to our API endpoint using the fetch API
+      // This is a modern way to make network requests (more powerful than AJAX)
       const response = await fetch("/api/chat", {
-        // HTTP method - POST is used when sending data to create something new
-        method: "POST",
-        
-        // Headers tell the server what kind of data we're sending
-        // Content-Type: application/json means we're sending JSON data
-        headers: { "Content-Type": "application/json" },
-        
-        // The body contains our actual data
-        // JSON.stringify converts JavaScript objects to a JSON string
-        // We wrap formData in another object with the formData property
-        // because that's what our API expects
-        body: JSON.stringify({ formData }),
+        method: "POST",              // HTTP POST method for creating new resources
+        headers: {                   // Request headers tell the server what format we're sending
+          "Content-Type": "application/json", // We're sending JSON data
+        },
+        body: JSON.stringify({ formData, template: selectedTemplate }), // Include template selection and wrap in formData object
       });
-
-      // Parse the JSON response from the server
-      // This is also asynchronous, so we need to await it
+      
+      // Parse the response body as JSON
+      // await is necessary because response.json() returns a Promise
       const result = await response.json();
       
-      // Check if the request was successful (HTTP status 200-299)
+      // Check if the request was successful
       if (response.ok) {
-        // Log the generated CV text (for debugging)
-        console.log("Generated CV:", result.response);
-        
-        // Update the state with the generated CV
-        // This will cause React to re-render and display the CV
+        // If successful, update the state with the generated CV and its ID
         setGeneratedCV(result.response);
-        
-        // If the server returned an ID for the saved CV,
-        // save it in state for potential future use
-        if (result.savedCV) {
           setSavedCVId(result.savedCV);
-          console.log("CV saved with ID:", result.savedCV);
-        }
       } else {
-        // If the server returned an error status code
-        // Display the error in the console
-        console.error("Error:", result.error);
-        // Show the error to the user
-        setError(result.error || "Failed to generate CV");
+        // If the request failed, set an error message from the response
+        throw new Error(result.error || "Failed to generate CV");
       }
-    } catch (error) {
-      // This block catches any exceptions thrown in the try block
-      // Examples: Network errors, JSON parsing errors, etc.
-      console.error("Error generating CV:", error);
-      setError(error.message || "An unexpected error occurred");
+    } catch (err) {
+      // Handle any errors that occurred during the try block
+      console.error("Error generating CV:", err);
+      setError(err.message || "An unexpected error occurred");
     } finally {
-      // Whether successful or not, set loading to false
+      // This code runs whether the try succeeded or caught an error
+      // Set loading state back to false
       setIsLoading(false);
     }
   };
 
   /**
-   * CV Download Handler
-   * 
-   * This function lets users download their generated CV as a text file.
-   * It demonstrates how to create downloadable files directly in the browser
-   * without needing a server request.
-   * 
-   * How it works:
-   * 1. Create a Blob (Binary Large Object) containing the CV text
-   * 2. Generate a temporary URL that points to this Blob
-   * 3. Create an invisible link element and programmatically click it
-   * 4. Clean up afterward to avoid memory leaks
+   * Render different views based on application state
    */
-  const handleDownload = () => {
-    // Step 1: Create a Blob
-    // A Blob is a file-like object of raw data
-    // The first parameter is an array of content parts (we just have one part)
-    // The second parameter is an object with the MIME type
-    const blob = new Blob([generatedCV], { type: 'text/plain' });
-    
-    // Step 2: Create a URL for the Blob
-    // This URL points to the blob in memory, not an actual server location
-    const url = URL.createObjectURL(blob);
-    
-    // Step 3: Create and trigger the download
-    // Create an invisible <a> element (hyperlink)
-    const a = document.createElement('a');
-    // Set the link destination to our Blob URL
-    a.href = url;
-    // Set the filename for the download
-    // Replace spaces with underscores for a more URL-friendly filename
-    a.download = `${formData.name.replace(/\s+/g, '_')}_CV.txt`;
-    
-    // Add the link to the page (required for Firefox)
-    document.body.appendChild(a);
-    // Programmatically click the link to trigger the download
-    a.click();
-    
-    // Step 4: Clean up
-    // Remove the link element from the page
-    document.body.removeChild(a);
-    // Free up memory by revoking the Blob URL
-    // This is important to prevent memory leaks
-    URL.revokeObjectURL(url);
-  };
-
-  /**
-   * Component Render Method
-   * 
-   * Renders the form with multiple sections for CV data entry,
-   * and conditionally displays the generated CV when available.
-   */
-  return (
-    <div className={classes.cvFormContainer}>
-      {/* Display authentication error if user is not logged in */}
-      {authError && (
-        <div className={classes.errorMessage}>
-          You must be logged in to create a CV. Redirecting to login page...
-        </div>
-      )}
-      
-      {/* Display any other errors that occurred */}
-      {error && (
-        <div className={classes.errorMessage}>{error}</div>
-      )}
-      
-      {/* CV Creation Form - only show if no CV has been generated yet */}
-      {!generatedCV ? (
-        <form onSubmit={handleSubmit} className={classes.cvForm}>
-          <h1 className={classes.formTitle}>Create Your CV</h1>
-
-          {/* Basic Information Section */}
-          <div className={classes.formSection}>
-            {/* Name Field */}
-            <label>
-              Full Name:
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required  // HTML5 validation - field is required
-                className={classes.inputField}
-              />
-            </label>
-
-            {/* Email Field */}
-            <label>
-              Email:
-              <input
-                type="email"  // HTML5 email input type for validation
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={classes.inputField}
-              />
-            </label>
-
-            {/* Phone Field */}
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={classes.inputField}
-              />
-            </label>
-
-            {/* LinkedIn Field */}
-            <label>
-              LinkedIn Profile:
-              <input
-                type="url"  // HTML5 URL input type for validation
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleInputChange}
-                className={classes.inputField}
-              />
-            </label>
-
-            {/* Objective Field */}
-            <label>
-              Objective:
-              <textarea
-                name="objective"
-                value={formData.objective}
-                onChange={handleInputChange}
-                className={classes.textareaField}
-              ></textarea>
-            </label>
-
-            {/* Skills Field */}
-            <label>
-              Skills:
-              <textarea
-                name="skills"
-                value={formData.skills}
-                onChange={handleInputChange}
-                className={classes.textareaField}
-                placeholder="List your skills separated by commas"
-              ></textarea>
-            </label>
-
-            {/* Certifications Field */}
-            <label>
-              Certifications:
-              <textarea
-                name="certifications"
-                value={formData.certifications}
-                onChange={handleInputChange}
-                className={classes.textareaField}
-                placeholder="List your certifications separated by commas"
-              ></textarea>
-            </label>
-
-            {/* Hobbies Field */}
-            <label>
-              Hobbies:
-              <textarea
-                name="hobbies"
-                value={formData.hobbies}
-                onChange={handleInputChange}
-                className={classes.textareaField}
-                placeholder="List your hobbies separated by commas"
-              ></textarea>
-            </label>
-          </div>
-
-          {/* Experience Section - Dynamic List */}
-          <h2 className={classes.sectionTitle}>Experience</h2>
-          {/* Map over each experience item to render input fields */}
-          {formData.experience.map((exp, index) => (
-            <div key={index} className={classes.experienceItem}>
-              {/* Experience Title Field */}
-              <label>
-                Title:
-                <input
-                  type="text"  
-                  value={exp.title}
-                  onChange={(e) => handleExperienceChange(index, "title", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Experience Company Field */}
-              <label>
-                Company:
-                <input
-                  type="text"
-                  value={exp.company}
-                  onChange={(e) => handleExperienceChange(index, "company", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Experience Start Date Field */}
-              <label>
-                Start Date:
-                <input
-                  type="date"  // HTML5 date input type for date picker
-                  value={exp.startDate}
-                  onChange={(e) => handleExperienceChange(index, "startDate", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Experience End Date Field */}
-              <label>
-                End Date:
-                <input
-                  type="date"  // HTML5 date input type for date picker
-                  value={exp.endDate}
-                  onChange={(e) => handleExperienceChange(index, "endDate", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Experience Responsibilities Field */}
-              <label>
-                Responsibilities:
-                <textarea
-                  value={exp.responsibilities}
-                  onChange={(e) => handleExperienceChange(index, "responsibilities", e.target.value)}
-                  className={classes.textareaField}
-                ></textarea>
-              </label>
-            </div>
-          ))}
-          {/* Button to add additional experience entries */}
-          <button type="button" onClick={addExperience} className={classes.addButton}>
-            Add Experience
-          </button>
-
-          {/* Education Section - Dynamic List */}
-          <h2 className={classes.sectionTitle}>Education</h2>
-          {/* Map over each education item to render input fields */}
-          {formData.education.map((edu, index) => (
-            <div key={index} className={classes.educationItem}>
-              {/* Education Degree Field */}
-              <label>
-                Degree:
-                <input
-                  type="text"
-                  value={edu.degree}
-                  onChange={(e) => handleEducationChange(index, "degree", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Education Institution Field */}
-              <label>
-                Institution:
-                <input
-                  type="text"
-                  value={edu.institution}
-                  onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-              {/* Education Graduation Date Field */}
-              <label>
-                Graduation Date:
-                <input
-                  type="date"  // HTML5 date input type for date picker
-                  value={edu.graduationDate}
-                  onChange={(e) => handleEducationChange(index, "graduationDate", e.target.value)}
-                  className={classes.inputField}
-                />
-              </label>
-            </div>
-          ))}
-          {/* Button to add additional education entries */}
-          <button type="button" onClick={addEducation} className={classes.addButton}>
-            Add Education
-          </button>
-
-          {/* Form Submission Button */}
-          <button 
-            type="submit" 
-            className={classes.submitButton}
-            disabled={isLoading}
-          >
-            {isLoading ? "Generating CV..." : "Generate CV"}
-          </button>
-        </form>
-      ) : (
-        /* Generated CV Display Section - Shown when CV is generated */
+  const renderContent = () => {
+    // Show the CV result if it has been generated
+    if (generatedCV) {
+      return (
         <div className={classes.generatedCvContainer}>
-          <div className={classes.cvHeader}>
-            <h2 className={classes.cvTitle}>Your Generated CV</h2>
-            {/* Download Button */}
-            <button
+          <h2 className={classes.generatedCvTitle}>Your Generated CV</h2>
+          
+          <div className={classes.generatedCvBox}>
+            {/* Render CV with HTML formatting instead of as plain text */}
+            <div 
+              className={`${classes.generatedCvContent} ${classes[`template${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)}`]}`}
+              dangerouslySetInnerHTML={{ __html: generatedCV }}
+            />
+          </div>
+          
+          <div className={classes.actionsContainer}>
+            <button 
               type="button" 
-              onClick={handleDownload}
+              onClick={handleDownload} 
               className={classes.downloadButton}
             >
-              Download CV
+              Download as Word Document
             </button>
-            {/* Create New CV Button */}
-            <button
-              type="button"
-              onClick={() => setGeneratedCV("")}
+            <button 
+              type="button" 
+              onClick={handleReset} 
               className={classes.newCvButton}
             >
               Create Another CV
             </button>
           </div>
-          {/* Display the generated CV in a preformatted text block */}
-          <pre className={classes.cvOutput}>{generatedCV}</pre>
+        </div>
+      );
+    }
+    
+    // Otherwise, show the CV form
+    return (
+      <div className={classes.cvFormLayout}>
+        {/* Form Column */}
+        <div className={classes.formColumn}>
+          <TemplateSelector 
+            selectedTemplate={selectedTemplate}
+            onSelectTemplate={handleTemplateSelect}
+          />
+          
+          <CVFormWizard
+            formData={formData}
+            setFormData={setFormData}
+            handleSubmit={handleSubmit}
+            handleExperienceChange={handleExperienceChange}
+            handleEducationChange={handleEducationChange}
+            addExperience={addExperience}
+            addEducation={addEducation}
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
+            isLoading={isLoading}
+            error={error}
+          />
+        </div>
+        
+        {/* Preview Column */}
+        <div className={classes.previewColumn}>
+          <h3 className={classes.previewTitle}>Live Preview</h3>
+          <CVPreview 
+            formData={formData}
+            template={selectedTemplate}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  /**
+   * Download Handler
+   * 
+   * Creates a downloadable Word document from the generated CV with proper template styling.
+   */
+  const handleDownload = () => {
+    if (!generatedCV) return;
+
+    // Create a Word document in HTML format that can be opened by Microsoft Word
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${formData.name || 'CV'} - ${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} CV</title>
+        <style>
+          /* Base styles for all templates */
+          body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.5;
+            margin: 1in;
+            color: #333;
+          }
+          h1 {
+            font-size: 24pt;
+            margin-bottom: 5px;
+          }
+          h2 {
+            font-size: 14pt;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+          }
+          p {
+            margin: 8px 0;
+          }
+          .header {
+            margin-bottom: 20px;
+          }
+          .contact-info {
+            margin-bottom: 15px;
+          }
+          .section {
+            margin-bottom: 20px;
+          }
+          ul {
+            margin-top: 5px;
+            padding-left: 20px;
+          }
+          li {
+            margin-bottom: 5px;
+          }
+          
+          /* Professional template styling */
+          ${selectedTemplate === 'professional' ? `
+            body {
+              font-family: 'Times New Roman', serif;
+              color: #000;
+            }
+            h1 {
+              color: #14213d;
+              border-bottom: 2pt solid #14213d;
+              padding-bottom: 5pt;
+            }
+            h2 {
+              color: #14213d;
+              border-bottom: 1pt solid #14213d;
+            }
+            .contact-info {
+              text-align: left;
+              font-style: normal;
+            }
+            .section {
+              margin-top: 12pt;
+            }
+            .experience-entry, .education-entry {
+              margin-bottom: 15pt;
+            }
+            h3 {
+              font-size: 12pt;
+              color: #14213d;
+              margin-bottom: 5pt;
+              margin-top: 10pt;
+            }
+            .dates {
+              font-style: italic;
+              margin-bottom: 5pt;
+            }
+          ` : ''}
+          
+          /* Creative template styling */
+          ${selectedTemplate === 'creative' ? `
+            body {
+              font-family: 'Calibri', 'Segoe UI', sans-serif;
+              margin: 0.8in;
+            }
+            h1 {
+              color: #bc6c25;
+              font-size: 28pt;
+              text-transform: uppercase;
+              letter-spacing: 2pt;
+            }
+            h2 {
+              color: #bc6c25;
+              border-bottom: 1.5pt solid #dda15e;
+              text-transform: uppercase;
+              letter-spacing: 1pt;
+            }
+            .header {
+              background-color: #fefae0;
+              padding: 20pt;
+              margin: -0.8in -0.8in 20pt -0.8in;
+            }
+            .contact-info {
+              color: #606c38;
+            }
+            .section {
+              padding-left: 5pt;
+            }
+            .experience-entry, .education-entry {
+              margin-bottom: 15pt;
+              border-left: 3pt solid #dda15e;
+              padding-left: 8pt;
+            }
+            h3 {
+              font-size: 12pt;
+              color: #bc6c25;
+              margin-bottom: 5pt;
+              margin-top: 10pt;
+            }
+            .dates {
+              color: #606c38;
+              margin-bottom: 5pt;
+            }
+            ul {
+              list-style-type: square;
+              color: #606c38;
+            }
+            li span {
+              color: #333;
+            }
+          ` : ''}
+          
+          /* Technical template styling */
+          ${selectedTemplate === 'technical' ? `
+            body {
+              font-family: 'Consolas', 'Courier New', monospace;
+              margin: 1in;
+              background-color: #f8f9fa;
+            }
+            h1 {
+              color: #2a9d8f;
+              font-size: 22pt;
+              border-bottom: none;
+            }
+            h2 {
+              color: #2a9d8f;
+              border-bottom: 1pt solid #2a9d8f;
+              text-transform: uppercase;
+              font-size: 13pt;
+            }
+            .section {
+              padding-left: 15pt;
+              border-left: 3pt solid #e9c46a;
+              margin-left: 5pt;
+            }
+            .experience-entry, .education-entry {
+              margin-bottom: 15pt;
+              border-bottom: 1pt dotted #e9c46a;
+              padding-bottom: 8pt;
+            }
+            h3 {
+              font-size: 12pt;
+              color: #2a9d8f;
+              margin-bottom: 5pt;
+              margin-top: 10pt;
+            }
+            .dates {
+              font-family: 'Calibri', sans-serif;
+              color: #264653;
+              margin-bottom: 5pt;
+            }
+            .contact-info {
+              font-family: 'Calibri', sans-serif;
+              color: #264653;
+            }
+            ul {
+              list-style-type: none;
+              padding-left: 15pt;
+            }
+            ul li:before {
+              content: ">";
+              color: #2a9d8f;
+              font-weight: bold;
+              display: inline-block;
+              width: 15pt;
+              margin-left: -15pt;
+            }
+          ` : ''}
+          
+          /* Minimalist template styling */
+          ${selectedTemplate === 'minimalist' ? `
+            body {
+              font-family: 'Arial', 'Helvetica', sans-serif;
+              margin: 1.5in;
+              color: #333;
+              font-weight: 300;
+            }
+            h1 {
+              font-weight: 300;
+              font-size: 26pt;
+              color: #333;
+              text-transform: uppercase;
+              letter-spacing: 3pt;
+            }
+            h2 {
+              font-weight: 300;
+              color: #555;
+              border-bottom: none;
+              letter-spacing: 1pt;
+              text-transform: uppercase;
+            }
+            .section {
+              margin-bottom: 25pt;
+            }
+            .experience-entry, .education-entry {
+              margin-bottom: 20pt;
+            }
+            h3 {
+              font-size: 12pt;
+              font-weight: 400;
+              color: #333;
+              margin-bottom: 5pt;
+              margin-top: 15pt;
+              letter-spacing: 0.5pt;
+            }
+            .dates {
+              color: #777;
+              margin-bottom: 5pt;
+              font-size: 10pt;
+            }
+            .contact-info {
+              color: #777;
+              font-size: 10pt;
+              text-transform: uppercase;
+              letter-spacing: 1pt;
+            }
+            ul {
+              list-style-type: none;
+              padding-left: 0;
+            }
+            p {
+              line-height: 1.7;
+            }
+          ` : ''}
+        </style>
+      </head>
+      <body>
+        ${generatedCV}
+      </body>
+      </html>
+    `;
+
+    // Create a Blob with HTML content
+    const blob = new Blob([htmlContent], { type: 'application/msword' });
+    
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary anchor element for downloading
+    const a = document.createElement("a");
+    a.href = url;
+    
+    // Set the file name with appropriate extension
+    a.download = `${formData.name.replace(/\s+/g, "_")}_${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)}_CV.doc`;
+    
+    // Programmatically click the anchor to trigger download
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  /**
+   * Template Selection Handler
+   * 
+   * Updates the selected CV template
+   * 
+   * @param {string} templateId - The ID of the selected template
+   */
+  const handleTemplateSelect = (templateId) => {
+    setSelectedTemplate(templateId);
+  };
+
+  /**
+   * New Form Reset Handler
+   * 
+   * Resets the form to create a new CV
+   */
+  const handleReset = () => {
+    setGeneratedCV("");
+    setSavedCVId(null);
+    // Reset to default form state
+    setFormData({
+      name: "", 
+      email: "", 
+      phone: "", 
+      linkedin: "", 
+      objective: "",
+      skills: "", 
+      certifications: "", 
+      hobbies: "",
+      experience: [{ title: "", company: "", startDate: "", endDate: "", responsibilities: "" }],
+      education: [{ degree: "", institution: "", graduationDate: "" }]
+    });
+  };
+
+  // Show a login prompt if user is not authenticated
+  if (authError) {
+  return (
+      <div className={classes.authErrorContainer}>
+        <h2>Authentication Required</h2>
+        <p>Please log in to generate and save CVs.</p>
+        <button
+          type="button"
+          onClick={() => router.push("/auth/login?callback=/")}
+          className={classes.loginButton}
+        >
+          Log In
+        </button>
+          </div>
+    );
+  }
+
+  // Main component rendering
+  return (
+    <div className={classes.container}>
+      <h1 className={classes.title}>Create Your Professional CV</h1>
+      
+      {error && (
+        <div className={classes.errorAlert}>
+          <p>{error}</p>
         </div>
       )}
+      
+      {renderContent()}
     </div>
   );
 }
 
-// Export the component for use in other parts of the application
 export default CVForm;
